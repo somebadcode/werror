@@ -5,10 +5,28 @@ type Error struct {
 	nextErr error
 }
 
-func New(err error) Error {
-	return Error{
+func New(err error) *Error {
+	if err == nil {
+		return nil
+	}
+	return &Error{
 		err:     err,
 		nextErr: nil,
+	}
+}
+
+func Wrap(err error, wrap error) *Error {
+	if err == nil && wrap == nil {
+		return nil
+	} else if err == nil && wrap != nil {
+		return &Error{
+			err:     wrap,
+			nextErr: nil,
+		}
+	}
+	return &Error{
+		err:     err,
+		nextErr: wrap,
 	}
 }
 
@@ -28,8 +46,8 @@ func (e Error) Is(err error) bool {
 	return e.err == err
 }
 
-func (e Error) Wrap(err error) Error {
-	return Error{
+func (e Error) Wrap(err error) *Error {
+	return &Error{
 		err:     err,
 		nextErr: e,
 	}
